@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="auto" method="POST" action="{% url 'socialaccount_signup' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+</form>
+<script>document.getElementById('auto').submit();</script>
+{% endblock %}
