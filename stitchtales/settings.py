@@ -220,6 +220,9 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # This is the key fix — tells allauth not to look in the DB for the app
 SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = False
 
 SITE_ID = 1
 
