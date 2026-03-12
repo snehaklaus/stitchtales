@@ -157,8 +157,19 @@ class Like(models.Model):
 
 
 
-
-
-
-
-
+class Visitor(models.Model):
+    ip_address = models.GenericIPAddressField()
+    path = models.CharField(max_length=500)
+    referrer = models.URLField(blank=True, null=True, max_length=500)
+    country = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    user_agent = models.TextField(blank=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
+    is_authenticated = models.BooleanField(default=False)
+ 
+    class Meta:
+        ordering = ['-visited_at']
+ 
+    def __str__(self):
+        return f"{self.ip_address} → {self.path} at {self.visited_at:%Y-%m-%d %H:%M}"
+ 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Category,Tag ,UserProfile,Like,Comment
+from .models import Post, Category,Tag ,UserProfile,Like,Comment,Visitor
 
 
 @admin.register(Post)
@@ -39,3 +39,15 @@ class CommentAdmin(admin.ModelAdmin):
 class LikeAdmin(admin.ModelAdmin):
     list_display=("user","post","created_at")
 
+@admin.register(Visitor)
+class VisitorAdmin(admin.ModelAdmin):
+    list_display=[
+        'ip_address',
+        'path',
+        'country',
+        'city',
+        'referrer',
+        'is_authenticated',
+        'visited_at',
+        'user_agent'
+    ]

@@ -54,6 +54,87 @@
         </div>
     </div>
 
+    <!-- Visitor Analytics -->
+    <div class="card mb-4" style="border-color: var(--yarn-purple);">
+        <div class="card-header" style="background: linear-gradient(135deg, var(--yarn-purple), var(--yarn-pink)); color: white;">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Visitor Analytics <small class="fw-normal opacity-75">(excludes your own visits)</small></h5>
+        </div>
+        <div class="card-body">
+
+            <!-- Visitor Stats Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="text-center p-3 rounded" style="background: #f5f0ff;">
+                        <h3 style="color: var(--yarn-purple);">{{ total_visitors }}</h3>
+                        <small class="text-muted">Total Visits</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 rounded" style="background: #fff0f5;">
+                        <h3 style="color: var(--yarn-pink);">{{ unique_visitors }}</h3>
+                        <small class="text-muted">Unique Visitors</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3 rounded" style="background: #fff8f0;">
+                        <h3 style="color: var(--yarn-brown);">{{ visitors_today }}</h3>
+                        <small class="text-muted">Visits Today</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <!-- Top Countries -->
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-globe"></i> Top Countries</h6>
+                    {% if top_countries %}
+                        {% for item in top_countries %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ item.country|default:"Unknown" }}</span>
+                            <span class="badge" style="background: var(--yarn-purple);">{{ item.total }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small">No data yet</p>
+                    {% endif %}
+                </div>
+
+                <!-- Top Referrers -->
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-link-45deg"></i> Top Referrers</h6>
+                    {% if top_referrers %}
+                        {% for item in top_referrers %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-truncate" style="max-width: 160px;" title="{{ item.referrer }}">
+                                {{ item.referrer|default:"Direct" }}
+                            </span>
+                            <span class="badge" style="background: var(--yarn-pink);">{{ item.total }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small">No data yet</p>
+                    {% endif %}
+                </div>
+
+                <!-- Top Pages -->
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-text"></i> Top Pages</h6>
+                    {% if top_pages %}
+                        {% for item in top_pages %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-truncate" style="max-width: 160px;">{{ item.path }}</span>
+                            <span class="badge bg-secondary">{{ item.total }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small">No data yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Quick Stats -->
     <div class="row g-3 mb-4">
         <div class="col-md-6">
@@ -185,17 +266,17 @@
                                 <td>{{ post.created_at|date:"M d, Y" }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{% url 'post_detail' post.slug %}" 
-                                           class="btn btn-outline-primary" 
+                                        <a href="{% url 'post_detail' post.slug %}"
+                                           class="btn btn-outline-primary"
                                            title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="{% url 'post_edit' post.slug %}" 
+                                        <a href="{% url 'post_edit' post.slug %}"
                                            class="btn btn-outline-secondary"
                                            title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="{% url 'post_delete' post.slug %}" 
+                                        <a href="{% url 'post_delete' post.slug %}"
                                            class="btn btn-outline-danger"
                                            title="Delete">
                                             <i class="bi bi-trash"></i>

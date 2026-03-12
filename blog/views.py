@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Post, Category, Tag, Comment, Like, UserProfile
+from .models import Post, Category, Tag, Comment, Like, UserProfile,Visitor
 from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
@@ -11,6 +11,9 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.conf import settings
 import traceback
+from django.db.models import Count
+from django.utils.timezone import now
+
 
 
 # ----------- AUTH VIEWS -----------
@@ -210,6 +213,35 @@ def dashboard(request):
     
     # Top performing posts
     top_posts = posts.filter(status='published').order_by('-view_count')[:5]
+
+    
+    today=now().date()
+    total_visitors=Visitor.objects.count()
+    unique_visitors=Visitor.objects.values('ip_address').distinct().count()
+    visitors_today=Visitor.objects.filter(visited_at__date=today).count()
+
+    top_countries=(
+        Visitor.objects
+        .exclude(country='')
+        .values('country')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:5]
+    )
+
+    top_referrers= (
+        Visitor.objects
+        .exclude(referrer='')
+        .values('referrer')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:5]
+    )
+
+    top_pages=(
+        Visitor.objects
+        .values('path')
+        .annotate(total=Count('id'))
+        .order_by('-total')[:5]
+    )
     
     return render(request, 'blog/dashboard.html', {
         'posts': posts.order_by('-created_at'),
@@ -221,6 +253,12 @@ def dashboard(request):
         'total_likes': total_likes,
         'recent_comments': recent_comments,
         'top_posts': top_posts,
+        'total_visitors':total_visitors,
+        'unique_visitors':unique_visitors,
+        'visitors_today':visitors_today,
+        'top_countries':top_countries,
+        'top_referrers':top_referrers,
+        'top_pages':top_pages,
     })
 
 

@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'blog.middleware.VisitorTrackinMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # ← ADD
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -249,3 +250,4 @@ LOGGING = {
     },
 }
 
+ANALYTICS_EXCLUDED_IPS=['110.226.176.83']
