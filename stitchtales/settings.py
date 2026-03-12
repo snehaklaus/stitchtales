@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'blog.middleware.VisitorTrackinMiddleware',
+    'blog.middleware.VisitorTrackingMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # ← ADD
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
