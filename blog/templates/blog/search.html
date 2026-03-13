@@ -1,23 +1,129 @@
 {% extends 'base.html' %}
 {% block title %}Search — StitchTales{% endblock %}
 {% block content %}
-<h2 style="color: var(--yarn-brown);">🔍 Search</h2>
-<form method="GET" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" value="{{ query }}" class="form-control form-control-lg" placeholder="Search patterns, tutorials...">
-        <button class="btn btn-primary" type="submit">Search</button>
+<div class="container my-5">
+
+    <h2 style="color: var(--yarn-brown);">🔍 Search Posts</h2>
+
+    <!-- Search + Filter Form -->
+    <form method="GET" class="mb-4">
+        <!-- Search bar -->
+        <div class="input-group mb-3">
+            <input type="text" name="q" value="{{ query }}" class="form-control form-control-lg"
+                   placeholder="Search patterns, tutorials...">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+
+        <!-- Filters row -->
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-muted">CATEGORY</label>
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-muted">TAG</label>
+                <select name="tag" class="form-select">
+                    <option value="">All Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.slug }}" {% if selected_tag == tag.slug %}selected{% endif %}>
+                        {{ tag.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold small text-muted">SORT BY</label>
+                <select name="sort" class="form-select">
+                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                    <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Most Viewed</option>
+                    <option value="most_liked" {% if selected_sort == 'most_liked' %}selected{% endif %}>Most Liked</option>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <a href="{% url 'search' %}" class="btn btn-outline-secondary w-100" title="Clear filters">✕</a>
+            </div>
+        </div>
+
+        <!-- Keep query in filters if present -->
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+    </form>
+
+    <!-- Active filter badges -->
+    {% if selected_category or selected_tag or query %}
+    <div class="mb-3">
+        <span class="text-muted small me-2">Active filters:</span>
+        {% if query %}
+            <span class="badge bg-primary me-1">🔍 "{{ query }}"</span>
+        {% endif %}
+        {% if selected_category %}
+            <span class="badge bg-secondary me-1">📁 {{ selected_category }}</span>
+        {% endif %}
+        {% if selected_tag %}
+            <span class="badge bg-info text-dark me-1">🏷️ {{ selected_tag }}</span>
+        {% endif %}
+        <a href="{% url 'search' %}" class="small text-danger ms-1">Clear all</a>
     </div>
-</form>
-{% if query %}
-<p class="text-muted">Results for <strong>"{{ query }}"</strong></p>
-{% for post in posts %}
-<div class="card mb-3 p-4">
-    <h5><a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">{{ post.title }}</a></h5>
-    <p class="text-muted">{{ post.excerpt }}</p>
-    <small class="text-muted">{{ post.created_at|date:"M d, Y" }} · {{ post.reading_time }} min read</small>
+    {% endif %}
+
+    <!-- Results count -->
+    <p class="text-muted mb-3">
+        <strong>{{ posts.paginator.count }}</strong> post{{ posts.paginator.count|pluralize }} found
+        {% if query %}for <strong>"{{ query }}"</strong>{% endif %}
+    </p>
+
+    <!-- Results -->
+    {% for post in posts %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">
+                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none" style="color: var(--yarn-brown);">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <p class="text-muted mb-2">{{ post.excerpt|truncatechars:150 }}</p>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <small class="text-muted">{{ post.created_at|date:"M d, Y" }}</small>
+                        <small class="text-muted">· {{ post.reading_time }} min read</small>
+                        <small class="text-muted">· {{ post.view_count }} views</small>
+                        {% if post.category %}
+                            <a href="{% url 'category_detail' post.category.slug %}"
+                               class="badge bg-secondary text-decoration-none">
+                                {{ post.category.name }}
+                            </a>
+                        {% endif %}
+                        {% for tag in post.tags.all %}
+                            <a href="{% url 'tag_detail' tag.slug %}"
+                               class="badge bg-light text-dark border text-decoration-none">
+                                #{{ tag.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <p class="fs-4">😔</p>
+        <p class="text-muted">No posts found. Try different keywords or filters.</p>
+        <a href="{% url 'search' %}" class="btn btn-outline-primary">Clear filters</a>
+    </div>
+    {% endfor %}
+
+   {% include 'partials/pagination.html' %} 
+
 </div>
-{% empty %}
-<p class="text-muted">No results found for "{{ query }}" 😔</p>
-{% endfor %}
-{% endif %}
 {% endblock %}

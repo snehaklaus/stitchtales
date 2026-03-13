@@ -13,7 +13,7 @@ from django.conf import settings
 import traceback
 from django.db.models import Count
 from django.utils.timezone import now
-
+from django.core.paginator import Paginator
 
 
 # ----------- AUTH VIEWS -----------
@@ -109,7 +109,10 @@ def author_detail(request, username):
 # ----------- BLOG VIEWS -----------
 
 def home(request):
-    posts = Post.objects.filter(status='published').select_related('author', 'category')
+    posts_list = Post.objects.filter(status='published').select_related('author', 'category')
+    paginator = Paginator(posts_list, 4)
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
     categories = Category.objects.all()
     tags = Tag.objects.all()
     return render(request, 'blog/home.html', {
@@ -159,23 +162,61 @@ def post_detail(request, slug):
 
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    posts = Post.objects.filter(category=category, status='published')
+    posts_list = Post.objects.filter(category=category, status='published')
+    paginator = Paginator(posts_list, 8)
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
     return render(request, 'blog/category_detail.html', {'category': category, 'posts': posts})
-
 
 def tag_detail(request, slug):
     tag = get_object_or_404(Tag, slug=slug)
-    posts = Post.objects.filter(tags=tag, status='published')
+    posts_list = Post.objects.filter(tags=tag, status='published')
+    paginator = Paginator(posts_list, 8)
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
     return render(request, 'blog/tag_detail.html', {'tag': tag, 'posts': posts})
-
 
 def search_view(request):
     query = request.GET.get('q', '')
-    posts = Post.objects.filter(status='published')
-    if query:
-        posts = posts.filter(title__icontains=query) | posts.filter(content__icontains=query)
-    return render(request, 'blog/search.html', {'posts': posts, 'query': query})
+    category_slug = request.GET.get('category', '')
+    tag_slug = request.GET.get('tag', '')
+    sort = request.GET.get('sort', 'newest')
 
+    posts_list = Post.objects.filter(status='published').select_related('author', 'category')
+
+    if query:
+        posts_list = posts_list.filter(title__icontains=query) | posts_list.filter(content__icontains=query)
+    if category_slug:
+        posts_list = posts_list.filter(category__slug=category_slug)
+    if tag_slug:
+        posts_list = posts_list.filter(tags__slug=tag_slug)
+    if sort == 'oldest':
+        posts_list = posts_list.order_by('created_at')
+    elif sort == 'popular':
+        posts_list = posts_list.order_by('-view_count')
+    elif sort == 'most_liked':
+        posts_list = posts_list.annotate(like_count=Count('likes')).order_by('-like_count')
+    else:
+        posts_list = posts_list.order_by('-created_at')
+
+    posts_list = posts_list.distinct()
+
+    paginator = Paginator(posts_list, 8)
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+
+    categories = Category.objects.all()
+    tags = Tag.objects.all()
+
+    return render(request, 'blog/search.html', {
+        'posts': posts,
+        'query': query,
+        'categories': categories,
+        'tags': tags,
+        'selected_category': category_slug,
+        'selected_tag': tag_slug,
+        'selected_sort': sort,
+    })
 
 # ----------- HTMX VIEWS -----------
 @login_required

@@ -1,14 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}#{{ tag.name }} — StitchTales{% endblock %}
 {% block content %}
-<h2 style="color: var(--yarn-brown);">🏷️ #{{ tag.name }}</h2>
-{% for post in posts %}
-<div class="card mb-3 p-4">
-    <h5><a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">{{ post.title }}</a></h5>
-    <p class="text-muted">{{ post.excerpt }}</p>
-    <small class="text-muted">{{ post.created_at|date:"M d, Y" }} · {{ post.reading_time }} min read</small>
+<div class="container my-5">
+    <div class="mb-4">
+        <h2 style="color: var(--yarn-brown);">🏷️ #{{ tag.name }}</h2>
+        <span class="badge bg-secondary">{{ posts|length }} post{{ posts|length|pluralize }}</span>
+    </div>
+
+    {% for post in posts %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body p-4">
+            <h5 class="mb-1">
+                <a href="{{ post.get_absolute_url }}" class="text-decoration-none" style="color: var(--yarn-brown);">
+                    {{ post.title }}
+                </a>
+            </h5>
+            <p class="text-muted mb-2">{{ post.excerpt|truncatechars:150 }}</p>
+            <div class="d-flex gap-2 flex-wrap mt-2">
+                {% if post.category %}
+                    <span class="badge bg-secondary">{{ post.category.name }}</span>
+                {% endif %}
+                <small class="text-muted">{{ post.created_at|date:"M d, Y" }} · {{ post.reading_time }} min read</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No posts with this tag yet.</p>
+    {% endfor %}
 </div>
-{% empty %}
-<p class="text-muted">No posts with this tag yet.</p>
-{% endfor %}
 {% endblock %}

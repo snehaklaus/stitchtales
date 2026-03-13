@@ -1,0 +1,71 @@
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation" class="my-5">
+    <div class="d-flex flex-column align-items-center gap-3">
+
+        <!-- Page buttons -->
+        <ul class="pagination mb-0" style="gap: 6px;">
+
+            <!-- Previous -->
+            {% if posts.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-pill px-3"
+                   style="border-color: var(--yarn-purple); color: var(--yarn-purple);"
+                   href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ posts.previous_page_number }}">
+                    ← Prev
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link rounded-pill px-3" style="border-color: #ddd;">← Prev</span>
+            </li>
+            {% endif %}
+
+            <!-- Page numbers -->
+            {% for num in posts.paginator.page_range %}
+                {% if posts.number == num %}
+                <li class="page-item active">
+                    <span class="page-link rounded-pill px-3 fw-bold"
+                          style="background: var(--yarn-purple); border-color: var(--yarn-purple); box-shadow: 0 2px 8px rgba(120,80,160,0.3);">
+                        {{ num }}
+                    </span>
+                </li>
+                {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link rounded-pill px-3"
+                       style="border-color: #ddd; color: var(--yarn-brown);"
+                       href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Next -->
+            {% if posts.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-pill px-3"
+                   style="border-color: var(--yarn-purple); color: var(--yarn-purple);"
+                   href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ posts.next_page_number }}">
+                    Next →
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link rounded-pill px-3" style="border-color: #ddd;">Next →</span>
+            </li>
+            {% endif %}
+
+        </ul>
+
+        <!-- Page info pill -->
+        <div class="px-3 py-1 rounded-pill small text-muted"
+             style="background: #f5f0ff; border: 1px solid #e0d4f7;">
+            🧶 Page <strong style="color: var(--yarn-purple);">{{ posts.number }}</strong>
+            of <strong>{{ posts.paginator.num_pages }}</strong>
+            &nbsp;·&nbsp;
+            <strong>{{ posts.paginator.count }}</strong> post{{ posts.paginator.count|pluralize }} total
+        </div>
+
+    </div>
+</nav>
+{% endif %}
