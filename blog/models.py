@@ -169,7 +169,17 @@ class Like(models.Model):
     def __str__(self):
         return f"{self.user.username} likes {self.post.title}"
 
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'post')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked {self.post.title}"
 
 class Visitor(models.Model):
     ip_address = models.GenericIPAddressField()

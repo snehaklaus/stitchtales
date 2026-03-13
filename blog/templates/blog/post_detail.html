@@ -173,18 +173,32 @@
                 {% endfor %}
             </div>
 
-            <!-- Like Button -->
-            <div class="mt-4" id="like-section">
-                {% if user.is_authenticated %}
-                <div hx-post="{% url 'like_post' post.slug %}"
-                     hx-target="#like-section"
-                     hx-swap="innerHTML"
-                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                    {% include 'partials/like_button.html' %}
+           <!-- Like + Bookmark Buttons -->
+            <div class="mt-4 d-flex gap-3 align-items-center">
+                <div id="like-section">
+                    {% if user.is_authenticated %}
+                    <div hx-post="{% url 'like_post' post.slug %}"
+                         hx-target="#like-section"
+                         hx-swap="innerHTML"
+                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                        {% include 'partials/like_button.html' %}
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary rounded-pill">🤍 Login to Like</a>
+                    {% endif %}
                 </div>
-                {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline-secondary">🤍 Login to Like</a>
-                {% endif %}
+                <div id="bookmark-section">
+                    {% if user.is_authenticated %}
+                    <div hx-post="{% url 'bookmark_post' post.slug %}"
+                         hx-target="#bookmark-section"
+                         hx-swap="innerHTML"
+                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                        {% include 'partials/bookmark_button.html' %}
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary rounded-pill">🔖 Login to Bookmark</a>
+                    {% endif %}
+                </div>
             </div>
         </article>
 

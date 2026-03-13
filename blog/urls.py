@@ -29,7 +29,8 @@ urlpatterns = [
     #robots.txt 
     path('robots.txt',views.robots_txt,name="robots_txt"),
 
-    
+    path('post/<slug:slug>/bookmark/', views.bookmark_post, name='bookmark_post'),
+path('bookmarks/', views.bookmarks_view, name='bookmarks'),
     
 
    

@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Post, Category, Tag, Comment, Like, UserProfile,Visitor, PostImage
+from .models import Post, Category, Tag, Comment, Like, UserProfile,Visitor, PostImage,Bookmark
 from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
@@ -125,13 +125,15 @@ def home(request):
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug, status='published')
     is_liked = False
+    is_bookmarked = False  # add this
 
     if not request.user.is_authenticated or request.user != post.author:
         post.view_count += 1
         post.save(update_fields=['view_count'])
-        
+
     if request.user.is_authenticated:
         is_liked = Like.objects.filter(post=post, user=request.user).exists()
+        is_bookmarked = Bookmark.objects.filter(post=post, user=request.user).exists()  # add this
 
     if request.method == 'POST' and request.user.is_authenticated:
         comment_form = CommentForm(request.POST)
@@ -145,9 +147,7 @@ def post_detail(request, slug):
     else:
         comment_form = CommentForm()
 
-    # fetch comments AFTER potential save and redirect
     comments = post.comments.filter(is_approved=True)
-
     related_posts = Post.objects.filter(
         category=post.category, status='published'
     ).exclude(id=post.id)[:3]
@@ -157,6 +157,7 @@ def post_detail(request, slug):
         'comments': comments,
         'comment_form': comment_form,
         'is_liked': is_liked,
+        'is_bookmarked': is_bookmarked,  # add this
         'related_posts': related_posts,
     })
 
@@ -375,3 +376,23 @@ def handler404(request,exception):
 
 def handler500(request):
     return render(request,"500.html",status=500)
+
+
+@login_required
+def bookmark_post(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    bookmark, created = Bookmark.objects.get_or_create(post=post, user=request.user)
+    if not created:
+        bookmark.delete()
+        is_bookmarked = False
+    else:
+        is_bookmarked = True
+    return render(request, 'partials/bookmark_button.html', {
+        'post': post,
+        'is_bookmarked': is_bookmarked,
+    })
+
+@login_required
+def bookmarks_view(request):
+    bookmarks = Bookmark.objects.filter(user=request.user).select_related('post', 'post__author', 'post__category')
+    return render(request, 'blog/bookmarks.html', {'bookmarks': bookmarks})

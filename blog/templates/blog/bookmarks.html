@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}My Bookmarks — StitchTales{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="mb-4">
+        <h2 style="color: var(--yarn-brown);">🔖 My Bookmarks</h2>
+        <p class="text-muted">Posts you've saved to read later.</p>
+    </div>
+
+    {% if bookmarks %}
+    <div class="row">
+        {% for bookmark in bookmarks %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if bookmark.post.images.first %}
+                <img src="{{ bookmark.post.images.first.image.url }}"
+                     class="card-img-top" alt="{{ bookmark.post.title }}"
+                     style="height:200px;object-fit:cover;">
+                {% elif bookmark.post.cover_image %}
+                <img src="{{ bookmark.post.cover_image.url }}"
+                     class="card-img-top" alt="{{ bookmark.post.title }}"
+                     style="height:200px;object-fit:cover;">
+                {% endif %}
+                <div class="card-body">
+                    {% if bookmark.post.category %}
+                    <a href="{{ bookmark.post.category.get_absolute_url }}"
+                       class="badge-category text-decoration-none mb-2 d-inline-block">
+                        {{ bookmark.post.category.name }}
+                    </a>
+                    {% endif %}
+                    <h5 class="card-title">
+                        <a href="{{ bookmark.post.get_absolute_url }}"
+                           class="text-decoration-none"
+                           style="color: var(--yarn-brown);">
+                            {{ bookmark.post.title }}
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted small">
+                        {{ bookmark.post.excerpt|truncatechars:120 }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> {{ bookmark.post.reading_time }} min read
+                        </small>
+                        <small class="text-muted">
+                            Saved {{ bookmark.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <p class="fs-1">🔖</p>
+        <p class="text-muted">You haven't saved any posts yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4">Browse Posts</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
