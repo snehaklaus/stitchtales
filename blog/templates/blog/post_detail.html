@@ -89,7 +89,6 @@
     transform: scale(1.02);
   }
 
-  /* Fancybox customization */
   .fancybox__close {
     background: rgba(0, 0, 0, 0.5);
     width: 50px;
@@ -114,7 +113,6 @@
     <div class="col-lg-8">
         <article class="card p-4 mb-4">
             
-            <!-- CAROUSEL FOR MULTIPLE NEW IMAGES -->
             {% if post.images.all|length > 1 %}
             <div class="carousel-container">
               <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -138,44 +136,36 @@
               </div>
             </div>
 
-            <!-- SINGLE NEW IMAGE -->
             {% elif post.images.all|length == 1 %}
             <a href="{{ post.images.first.image.url }}" data-fancybox="gallery" data-caption="{{ post.title }}" class="d-block">
               <img src="{{ post.images.first.image.url }}" class="post-cover" alt="{{ post.title }}">
             </a>
 
-            <!-- OLD COVER_IMAGE (FALLBACK FOR PREVIOUSLY UPLOADED POSTS) -->
             {% elif post.cover_image %}
             <a href="{{ post.cover_image.url }}" data-fancybox="gallery" data-caption="{{ post.title }}" class="d-block">
               <img src="{{ post.cover_image.url }}" class="post-cover" alt="{{ post.title }}">
             </a>
             {% endif %}
 
+            <!-- Post meta -->
             <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
-    {% if post.category %}
-    <a href="{{ post.category.get_absolute_url }}" class="badge-category text-decoration-none">{{ post.category.name }}</a>
-    {% endif %}
-    <span class="reading-time">
-        <i class="bi bi-clock"></i> {{ post.reading_time }} min read
-    </span>
-    <span class="reading-time">
-        <i class="bi bi-eye"></i> {{ post.view_count }} views
-    </span>
-    <span class="reading-time">
-        <i class="bi bi-calendar"></i> {{ post.created_at|date:"F d, Y" }}
-    </span>
-    <span class="reading-time">
-        <i class="bi bi-person"></i> 
-        <a href="{% url 'author_detail' post.author.username %}" class="text-decoration-none">
-            {{ post.author.get_full_name|default:post.author.username }}
-        </a>
-    </span>
-</div>
-            <h1 style="color: var(--yarn-brown);">{{ post.title }}</h1>
-            <div class="d-flex align-items-center gap-2 mb-4">
-                <small class="text-muted">by <a href="{% url 'author_detail' post.author.username %}">{{ post.author.get_full_name|default:post.author.username }}</a> · {{ post.created_at|date:"M d, Y" }}</small>
+                {% if post.category %}
+                <a href="{{ post.category.get_absolute_url }}" class="badge-category text-decoration-none">{{ post.category.name }}</a>
+                {% endif %}
+                <span class="reading-time"><i class="bi bi-clock"></i> {{ post.reading_time }} min read</span>
+                <span class="reading-time"><i class="bi bi-eye"></i> {{ post.view_count }} views</span>
+                <span class="reading-time"><i class="bi bi-calendar"></i> {{ post.created_at|date:"F d, Y" }}</span>
+                <span class="reading-time">
+                    <i class="bi bi-person"></i>
+                    <a href="{% url 'author_detail' post.author.username %}" class="text-decoration-none">
+                        {{ post.author.get_full_name|default:post.author.username }}
+                    </a>
+                </span>
             </div>
-            <div class="post-content" style="line-height: 1.9;">{{ post.content|linebreaks }}</div>
+
+            <h1 style="color: var(--yarn-brown);">{{ post.title }}</h1>
+
+            <div class="post-content mt-4" style="line-height: 1.9;">{{ post.content|safe }}</div>
 
             <div class="mt-4 d-flex flex-wrap gap-2">
                 {% for tag in post.tags.all %}
@@ -214,7 +204,6 @@
             <p class="text-muted py-2">No comments yet. Be the first! 🧶</p>
             {% endfor %}
 
-            <!-- Comment Form -->
             <div class="mt-4">
                 {% if user.is_authenticated %}
                 <h6>Leave a Comment</h6>
@@ -236,7 +225,9 @@
             {% if post.author.profile.avatar %}
             <img src="{{ post.author.profile.avatar.url }}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" alt="">
             {% else %}
-            <div class="mx-auto mb-2 bg-secondary text-white d-flex align-items-center justify-content-center" style="width:80px;height:80px;border-radius:50%;font-size:2rem;">{{ post.author.username|first|upper }}</div>
+            <div class="mx-auto mb-2 bg-secondary text-white d-flex align-items-center justify-content-center" style="width:80px;height:80px;border-radius:50%;font-size:2rem;">
+                {{ post.author.username|first|upper }}
+            </div>
             {% endif %}
             <h6 class="mt-2">{{ post.author.get_full_name|default:post.author.username }}</h6>
             <p class="text-muted small">{{ post.author.profile.bio|default:"Crochet enthusiast" }}</p>
@@ -257,50 +248,43 @@
     </div>
 </div>
 
-{% if related_posts%}
+<!-- Related Posts Grid (bottom) -->
+{% if related_posts %}
 <div class="mt-5">
-    <h3 class="mb-4">
-        <i class="bi bi-bookmark"></i>
-    </h3>
+    <h3 class="mb-4" style="color: var(--yarn-brown);">🧶 Related Posts</h3>
     <div class="row">
-        {% for related in related_posts%}
-        <div class="col-md-4 mb-3">
-            {% if related.cover_image %}
-            <img src="{{related.cover_image.url}}" class="card-img-top" alt="{{related.title}}" style="height:200px;object-fit:cover;">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">
-                    <a href="{% url 'post_detail' related.slug%}" class="text-decoration-none">
-                        {{related.title}}
-                    </a>
-                </h5>
-                <p class="card-text text-muted">
-                    {{related.excerpt |truncatewords:20|striptags}}
-                </p>
-                <small class="text-muted">
-                    <i class ="bi bi-clock"></i> {{related.reading_time}} min read
-                </small>
-
+        {% for related in related_posts %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if related.images.first %}
+                <img src="{{ related.images.first.image.url }}" class="card-img-top" alt="{{ related.title }}" style="height:200px;object-fit:cover;">
+                {% elif related.cover_image %}
+                <img src="{{ related.cover_image.url }}" class="card-img-top" alt="{{ related.title }}" style="height:200px;object-fit:cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'post_detail' related.slug %}" class="text-decoration-none" style="color: var(--yarn-brown);">
+                            {{ related.title }}
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted small">
+                        {{ related.excerpt|truncatewords:20|striptags }}
+                    </p>
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i> {{ related.reading_time }} min read
+                    </small>
+                </div>
             </div>
         </div>
-    </div>
-
         {% endfor %}
-</div>
+    </div>
 </div>
 {% endif %}
 
-<!-- Fancybox JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.30/dist/fancybox/fancybox.umd.js"></script>
 <script>
-  Fancybox.bind('[data-fancybox]', {
-    on: {
-      reveal: (fancybox, slide) => {
-        // Auto-fit images
-      },
-    },
-  });
+  Fancybox.bind('[data-fancybox]', {});
 </script>
 
 {% endblock %}

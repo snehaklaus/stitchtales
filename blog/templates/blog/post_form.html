@@ -1,40 +1,126 @@
 {% extends 'base.html' %}
 {% block title %}{{ action }} Post — StitchTales{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<style>
+  .ql-toolbar.ql-snow {
+    border-radius: 8px 8px 0 0;
+    border-color: #dee2e6;
+    background: #fafafa;
+  }
+  .ql-container.ql-snow {
+    border-radius: 0 0 8px 8px;
+    border-color: #dee2e6;
+    font-family: Georgia, serif;
+    font-size: 16px;
+    line-height: 1.8;
+    min-height: 400px;
+  }
+  .ql-editor {
+    min-height: 400px;
+    color: #333;
+  }
+  .ql-editor.ql-blank::before {
+    color: #aaa;
+    font-style: italic;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="card p-4">
-    <h3 style="color: var(--yarn-brown);">✍️ {{ action }} Post</h3>
+<div class="container my-5">
+  <div class="card shadow-sm p-4 p-md-5">
+    <h3 class="mb-4" style="color: var(--yarn-brown);">✍️ {{ action }} Post</h3>
+
     <form method="POST" enctype="multipart/form-data" id="postForm">
-        {% csrf_token %}
-        {% for field in form %}
-        <div class="mb-3">
-            <label class="form-label fw-bold">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
-            {% if field.help_text %}<div class="text-muted small">{{ field.help_text }}</div>{% endif %}
-        </div>
-        {% endfor %}
-        
-        <button type="submit" class="btn btn-primary">{{ action }} Post</button>
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="mb-4">
+        <label class="form-label fw-bold">{{ field.label }}</label>
+
+        {% if field.name == 'content' %}
+          <div id="quill-editor"></div>
+          <textarea name="content" id="id_content" style="display:none;">{{ field.value|default:'' }}</textarea>
+
+        {% elif field.name == 'tags' %}
+          <div class="d-flex flex-wrap gap-2 mt-1">
+            {% for checkbox in field %}
+            <div class="form-check form-check-inline border rounded-pill px-3 py-1"
+                 style="background: #f5f0ff; border-color: var(--yarn-purple) !important; cursor: pointer;">
+              {{ checkbox.tag }}
+              <label class="form-check-label ms-1" for="{{ checkbox.id_for_label }}"
+                     style="cursor: pointer; color: var(--yarn-brown);">
+                {{ checkbox.choice_label }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          {{ field }}
+        {% endif %}
+
+        {% if field.errors %}
+          <div class="text-danger small mt-1">{{ field.errors }}</div>
+        {% endif %}
+        {% if field.help_text %}
+          <div class="text-muted small mt-1">{{ field.help_text }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary px-4 rounded-pill">
+          {% if action == 'Create' %}🧶 Publish Post{% else %}💾 Save Changes{% endif %}
+        </button>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+      </div>
+
     </form>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script>
-  // Prevent selecting more than 3 files
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
+
+    const quill = new Quill('#quill-editor', {
+      theme: 'snow',
+      placeholder: 'Write your crochet story here...',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ color: [] }, { background: [] }],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          [{ indent: '-1' }, { indent: '+1' }],
+          ['link', 'image', 'blockquote', 'code-block'],
+          ['clean']
+        ]
+      }
+    });
+
+    const existingContent = document.getElementById('id_content').value;
+    if (existingContent) {
+      quill.clipboard.dangerouslyPasteHTML(existingContent);
+    }
+
+    document.getElementById('postForm').addEventListener('submit', function () {
+      document.getElementById('id_content').value = quill.root.innerHTML;
+    });
+
     const fileInput = document.querySelector('input[name="cover_images"]');
-    
     if (fileInput) {
-      fileInput.addEventListener('change', function(e) {
-        const files = e.target.files;
-        
-        if (files.length > 3) {
-          alert('⚠️ You can only upload a maximum of 3 images. You selected ' + files.length + '. Please select 3 or fewer.');
-          // Clear the input
+      fileInput.addEventListener('change', function (e) {
+        if (e.target.files.length > 3) {
+          alert('⚠️ You can only upload a maximum of 3 images. You selected ' + e.target.files.length + '. Please select 3 or fewer.');
           e.target.value = '';
         }
       });
     }
+
   });
 </script>
 
