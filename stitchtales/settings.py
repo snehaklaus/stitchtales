@@ -250,4 +250,8 @@ LOGGING = {
     },
 }
 
-ANALYTICS_EXCLUDED_IPS=['110.226.183.226']
+ANALYTICS_EXCLUDED_IPS=[
+    '110.226.183.226'
+     '127.0.0.1',           # localhost (local development)
+    '::1',                 # localhost IPv6
+    ]

@@ -5,12 +5,6 @@
     <div class="preview-blur-layer"></div>
     
     <div class="preview-modal">
-        <button class="preview-modal-close" onclick="closePreviewModal()" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-            </svg>
-        </button>
-        
         <div class="preview-modal-content">
             <h2 style="color: var(--yarn-brown); margin-bottom: 1rem;">
                 🧶 Want to read the full story?
@@ -64,6 +58,7 @@
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(3px);
+        cursor: not-allowed;  /* Show user they can't click to close */
     }
     
     .preview-modal {
@@ -89,25 +84,6 @@
         }
     }
     
-    .preview-modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #999;
-        transition: color 0.2s;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .preview-modal-close:hover {
-        color: var(--yarn-brown);
-    }
-    
     .preview-modal-content {
         text-align: center;
     }
@@ -129,6 +105,7 @@
         text-decoration: none !important;
         display: block !important;
         transition: opacity 0.2s, transform 0.2s !important;
+        cursor: pointer !important;
     }
     
     .btn-register-modal:hover {
@@ -148,6 +125,7 @@
         text-decoration: none !important;
         display: block !important;
         transition: background 0.2s, transform 0.2s !important;
+        cursor: pointer !important;
     }
     
     .btn-login-modal:hover {
@@ -197,34 +175,39 @@
         document.body.style.overflow = 'hidden';
     }
     
-    function closePreviewModal() {
-        // Remove blur
-        document.querySelector('.row').classList.remove('content-blurred');
-        
-        // Hide modal
-        document.getElementById('previewOverlay').style.display = 'none';
-        
-        // Re-enable scrolling
-        document.body.style.overflow = 'auto';
-    }
-    
-    // Close modal when clicking outside
+    // BLOCK clicking on blur layer - user must click a button
     document.addEventListener('click', function(event) {
         const modal = document.getElementById('previewOverlay');
         if (modal.style.display === 'flex') {
-            const modalContent = document.querySelector('.preview-modal');
-            if (event.target === modal || (!modalContent.contains(event.target) && event.target.id === 'previewOverlay')) {
-                // Allow closing by clicking on blur layer
-                closePreviewModal();
+            const blurLayer = document.querySelector('.preview-blur-layer');
+            
+            // If clicking on blur layer, do nothing (don't close)
+            if (event.target === blurLayer) {
+                event.stopPropagation();
+                event.preventDefault();
+                return false;
             }
         }
     });
     
-    // Prevent close on modal content click
-    document.addEventListener('click', function(event) {
-        const modalContent = document.querySelector('.preview-modal');
-        if (modalContent && event.target.closest('.preview-modal')) {
-            event.stopPropagation();
+    // Disable ESC key to close modal
+    document.addEventListener('keydown', function(event) {
+        const modal = document.getElementById('previewOverlay');
+        if (modal.style.display === 'flex') {
+            if (event.key === 'Escape') {
+                event.stopPropagation();
+                event.preventDefault();
+                return false;
+            }
+        }
+    });
+    
+    // Disable back button when overlay is active
+    window.addEventListener('popstate', function(event) {
+        const modal = document.getElementById('previewOverlay');
+        if (modal.style.display === 'flex') {
+            event.preventDefault();
+            window.history.pushState(null, null, window.location.href);
         }
     });
 </script>
