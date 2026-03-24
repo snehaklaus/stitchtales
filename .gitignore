@@ -29,3 +29,8 @@ db.sqlite3-journal
 # OS
 .DS_Store
 Thumbs.db
+
+# Make sure .gitignore has these
+.env
+*.env
+db.sqlite3
