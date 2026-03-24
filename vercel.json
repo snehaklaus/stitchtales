@@ -6,9 +6,17 @@
       "config": {
         "distDir": "staticfiles"
       }
+    },
+    {
+      "src": "stitchtales/wsgi.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "stitchtales/wsgi.py"
