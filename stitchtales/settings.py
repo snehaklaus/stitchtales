@@ -88,8 +88,8 @@ WSGI_APPLICATION = 'stitchtales.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
-        conn_max_age=600,
-        conn_health_checks=True,
+        conn_max_age=0,  # ← change from 600 to 0 for pgbouncer
+        conn_health_checks=False,
     )
 }
 
