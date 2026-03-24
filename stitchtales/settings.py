@@ -14,7 +14,12 @@ from pathlib import Path
 import os
 import dj_database_url
 from decouple import config
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,8 +33,16 @@ SECRET_KEY = config('SECRET_KEY',default='django-insecure-8v^e7%#pnj4n7j3awa5qh2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False,cast=bool)
 
-ALLOWED_HOSTS =config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [
+    '.vercel.app',
+    '.now.sh',
+    'localhost',
+    '127.0.0.1',
+]
 
+# Add your custom domain later if needed
+if os.getenv('VERCEL_URL'):
+    ALLOWED_HOSTS.append(os.getenv('VERCEL_URL'))
 
 # Application definition
 
@@ -95,7 +108,9 @@ WSGI_APPLICATION = 'stitchtales.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL',default='sqlite:///db.sqlite3')
+        default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -158,8 +173,8 @@ if not DEBUG:
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
-    'https://stitchtales.up.railway.app',
-    'https://*.railway.app',
+    'https://*.vercel.app',
+    'https://*.now.sh',
 ]
 
 # If using environment variable
