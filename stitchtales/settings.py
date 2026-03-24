@@ -29,9 +29,10 @@ SECRET_KEY = config('SECRET_KEY',default='django-insecure-8v^e7%#pnj4n7j3awa5qh2
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "your-app.onrender.com",
-    "localhost",
-    "127.0.0.1"
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # This allows all Render domains
+    'stitchtales.onrender.com',  # Your specific Render URL
 ]
 
 STATIC_URL = '/static/'
@@ -98,15 +99,26 @@ WSGI_APPLICATION = 'stitchtales.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-import dj_database_url
-import dj_database_url
 import os
+import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("DATABASE_URL")
-    )
-}
+# Database configuration
+if os.environ.get('DATABASE_URL'):
+    # Production (Render) - use Supabase
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+        )
+    }
+else:
+    # Local development - use SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -166,8 +178,8 @@ if not DEBUG:
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
-    'https://stitchtales.up.railway.app',
-    'https://*.railway.app',
+    'https://stitchtales.onrender.com',
+    'https://*.onrender.com',
 ]
 
 # If using environment variable
