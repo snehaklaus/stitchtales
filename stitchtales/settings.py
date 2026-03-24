@@ -167,9 +167,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Security settings for production
 if not DEBUG:
-    # Only redirect if not on Railway (Railway handles SSL)
-    if 'railway.app' not in config('ALLOWED_HOSTS', default=''):
-        SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = not DEBUG
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -275,3 +274,5 @@ ANALYTICS_EXCLUDED_IPS=[
      '127.0.0.1',           # localhost (local development)
     '::1',                 # localhost IPv6
     ]
+
+APPEND_SLASH = True
