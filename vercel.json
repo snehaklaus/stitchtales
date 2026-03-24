@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "build_files.sh",
@@ -11,7 +12,8 @@
       "src": "stitchtales/wsgi.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
       }
     }
   ],
