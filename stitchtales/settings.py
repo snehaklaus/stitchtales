@@ -26,10 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY',default='django-insecure-8v^e7%#pnj4n7j3awa5qh2kz1&c@&adii!av72^0zw&!4*yjf7')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False,cast=bool)
+DEBUG = False
 
-ALLOWED_HOSTS =config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [
+    "your-app.onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Application definition
 
@@ -92,13 +98,11 @@ WSGI_APPLICATION = 'stitchtales.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL',default='sqlite:///db.sqlite3')
-    )
+    'default': dj_database_url.parse("YOUR_SUPABASE_DB_URL")
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
