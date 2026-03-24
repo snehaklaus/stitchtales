@@ -5,3 +5,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'stitchtales.settings')
 
 application = get_wsgi_application()
 app = application  # ← Vercel looks for this
+
